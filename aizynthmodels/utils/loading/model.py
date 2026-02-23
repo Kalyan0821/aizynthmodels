@@ -4,9 +4,8 @@ import logging
 from typing import TYPE_CHECKING
 
 import pytorch_lightning as pl
-from omegaconf import DictConfig, OmegaConf
-
 from aizynthmodels.utils.loading import load_item, unravel_list_dict
+from omegaconf import DictConfig, OmegaConf
 
 if TYPE_CHECKING:
     from typing import Union
@@ -15,7 +14,10 @@ if TYPE_CHECKING:
 
 
 def build_model(
-    model_config: Union[DictConfig, StrDict], module_name: str, model_hyperparams: Union[StrDict, DictConfig], mode: str
+    model_config: Union[DictConfig, StrDict],
+    module_name: str,
+    model_hyperparams: Union[StrDict, DictConfig],
+    mode: str,
 ) -> pl.LightningModule:
     """
     Load a model from config. The keys are 'type' and 'arguments'. The value for 'type'
@@ -48,15 +50,23 @@ def build_model(
     return model
 
 
-def random_initialization(model_cls: pl.LightningModule, model_hyperparams: StrDict) -> pl.LightningModule:
+def random_initialization(
+    model_cls: pl.LightningModule, model_hyperparams: StrDict
+) -> pl.LightningModule:
     """Constructing a model with randomly initialized weights."""
     model = model_cls(config=model_hyperparams)
     return model
 
 
-def initialize_from_ckpt(model_cls: pl.LightningModule, model_hyperparams: StrDict, mode: str) -> pl.LightningModule:
+def initialize_from_ckpt(
+    model_cls: pl.LightningModule, model_hyperparams: StrDict, mode: str
+) -> pl.LightningModule:
     """Constructing a model with weights from a ckpt-file."""
-    model = model_cls.load_from_checkpoint(model_hyperparams["ckpt_path"], config=model_hyperparams)
+    model = model_cls.load_from_checkpoint(
+        model_hyperparams["ckpt_path"],
+        config=model_hyperparams,
+        weights_only=False,
+    )
     if mode == "eval":
         model.eval()
     return model
